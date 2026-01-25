@@ -1,6 +1,8 @@
 # 🧑‍💻 The-Mask-Mandate
 # Face Mask Detection using TensorFlow & MobileNetV2
 
+Working Demo: https://www.youtube.com/watch?v=6ik5lKU4OtQ 
+
 This project implements a **binary image classification model** to detect whether a person is wearing a face mask or not. It leverages **TensorFlow** with the **MobileNetV2** architecture for transfer learning, combined with **OpenCV** and **Streamlit** for deployment and visualization.
 
 ---
@@ -20,11 +22,11 @@ This project implements a **binary image classification model** to detect whethe
 ```
 ├── dataset/                # Dataset folder with 'mask' and 'no_mask' subfolders
 ├── face_mask_model.keras   # Saved trained model
-├── app.py                  # (Optional) Streamlit app for demo
+├── app.py                  # Streamlit app for demo
+├── facemask.ipynb          # Training
 ├── requirements.txt        # Dependencies
 └── README.md               # Project documentation
 ```
-
 ---
 
 ## ⚙️ Installation
@@ -36,29 +38,6 @@ git clone https://github.com/abdullahwaseem404/The-Mask-Mandate.git
 ```
 ```bash
 pip install -r requirements.txt
-```
-
-
----
-
-## 📊 Training
-
-Run the training script:
-
-```bash
-python train.py
-```
-
-Key parameters:
-- `IMG_SIZE = 224`
-- `BATCH_SIZE = 16`
-- `EPOCHS = 3`
-- `validation_split = 0.2`
-
-The model will be saved as:
-
-```
-face_mask_model.keras
 ```
 
 ---
@@ -76,7 +55,6 @@ dataset/
 │   ├── image3.jpg
 │   ├── image4.jpg
 ```
-
 ---
 
 ## 📈 Model Summary
