@@ -1,46 +1,33 @@
 import streamlit as st
-import torch
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
-from my_preprocessing import clean_text
+import cv2
+import sys
+import os
 
-MODEL_PATH = "bert-base-uncased"
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'src')))
 
-@st.cache_resource
-def load_model():
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
-    model = AutoModelForSequenceClassification.from_pretrained(MODEL_PATH)
-    return tokenizer, model
+from inference import detect_and_classify
 
-tokenizer, model = load_model()
+st.set_page_config(page_title="Face Mask Detection", layout="wide")
+st.title("😷 The-Mask-Mandate – Live Detection System")
 
-st.set_page_config(page_title="Factify", layout="centered")
+if "camera" not in st.session_state:
+    st.session_state.camera = cv2.VideoCapture(0)
 
-st.title("📰 Factify – Fake News Detector")
-st.write("Detect whether a news article is **Real or Fake** using AI")
+FRAME_WINDOW = st.image([])
 
-text = st.text_area("Enter News Text", height=200)
+run = st.checkbox("Start Camera", value=True)
 
-if st.button("Predict"):
-    if text.strip() == "":
-        st.warning("Please enter text")
-    else:
-        cleaned = clean_text(text)
+while run:
+    ret, frame = st.session_state.camera.read()
 
-        inputs = tokenizer(
-            cleaned,
-            return_tensors="pt",
-            truncation=True,
-            padding=True
-        )
+    if not ret:
+        st.error("Camera not accessible")
+        break
 
-        with torch.no_grad():
-            outputs = model(**inputs)
-            probs = torch.softmax(outputs.logits, dim=1)
-            pred = torch.argmax(probs).item()
+    frame = cv2.flip(frame, 1)
 
-        if pred == 0:
-            st.error("🚨 Fake News")
-        else:
-            st.success("✅ Real News")
+    frame = detect_and_classify(frame)
 
-        st.write("Confidence:", probs.tolist())
+    FRAME_WINDOW.image(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+
+st.session_state.camera.release()
