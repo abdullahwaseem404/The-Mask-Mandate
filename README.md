@@ -1,83 +1,71 @@
-# 🧑‍💻 The-Mask-Mandate
-# Face Mask Detection using TensorFlow & MobileNetV2
+# 😷 The-Mask-Mandate – Face Mask Detection System
 
-Working Demo: https://www.youtube.com/watch?v=6ik5lKU4OtQ 
-
-This project implements a **binary image classification model** to detect whether a person is wearing a face mask or not. It leverages **TensorFlow** with the **MobileNetV2** architecture for transfer learning, combined with **OpenCV** and **Streamlit** for deployment and visualization.
+A real-time **Face Mask Detection System** that uses YOLOv8 for face detection and a deep learning classifier (MobileNetV2) to determine whether a person is wearing a mask or not.
 
 ---
 
 ## 🚀 Features
-- Pretrained **MobileNetV2** backbone for efficient transfer learning.
-- Image preprocessing with **ImageDataGenerator** (train/validation split).
-- Binary classification (`mask` vs `no mask`).
-- GPU/CPU compatibility check.
-- Model training with dropout regularization to prevent overfitting.
-- Exported trained model (`face_mask_model.keras`).
-- Ready for deployment with **Streamlit**.
+
+* 📷 Real-time webcam detection
+* 🧠 Dual-model pipeline:
+  * YOLOv8 for face detection
+  * MobileNetV2 for mask classification
+* 🎯 Bounding box + label visualization
+* ⚡ Fast and lightweight inference
+* 🌐 Streamlit-based interactive UI
 
 ---
 
-## 📂 Project Structure
-```
-├── dataset/                # Dataset folder with 'mask' and 'no_mask' subfolders
-├── face_mask_model.keras   # Saved trained model
-├── app.py                  # Streamlit app for demo
-├── facemask.ipynb          # Training
-├── requirements.txt        # Dependencies
-└── README.md               # Project documentation
-```
+## 🧠 Models Used
+### 🔹 YOLOv8 (Ultralytics)
+* Detects faces in real-time
+* High speed and accuracy
+### 🔹 MobileNetV2 (TensorFlow/Keras)
+* Pretrained on ImageNet
+* Fine-tuned for mask classification
+
 ---
 
 ## ⚙️ Installation
 
-Clone the repository and install dependencies:
-
-```bash
+```bash id="mask2"
 git clone https://github.com/abdullahwaseem404/The-Mask-Mandate.git
-```
-```bash
 pip install -r requirements.txt
 ```
 
 ---
 
-## 🖼️ Dataset
-
-The dataset should be organized as follows:
-
-```
-dataset/
-│── mask/
-│   ├── image1.jpg
-│   ├── image2.jpg
-│── no_mask/
-│   ├── image3.jpg
-│   ├── image4.jpg
-```
----
-
-## 📈 Model Summary
-
-The model uses **MobileNetV2** (pretrained on ImageNet) as the base, with custom dense layers:
-
-- Flatten
-- Dense(128, ReLU)
-- Dropout(0.5)
-- Dense(1, Sigmoid)
-
-Loss: `binary_crossentropy`  
-Optimizer: `adam`  
-Metrics: `accuracy`
-
----
-
-## 🌐 Deployment (Streamlit)
+## ▶️ Usage
 
 Run the Streamlit app:
 
-```bash
+```bash id="mask4"
 streamlit run app.py
 ```
 
-This will launch a web interface where users can upload images and get predictions.
+---
+
+## 🎯 How It Works
+
+1. 📸 Capture frame from webcam
+2. 👤 YOLOv8 detects faces
+3. ✂️ Crop detected face region
+4. 🧠 MobileNetV2 predicts mask/no-mask
+5. 🟢 Draw bounding box with label
+
+---
+
+## 🧪 Model Training
+
+* Uses data augmentation
+* Transfer learning with MobileNetV2
+* Binary classification (Mask / No Mask)
+
+---
+
+## 📊 Output
+
+* 🟢 Green box → Mask
+* 🔴 Red box → No Mask
+
+---
