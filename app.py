@@ -1,51 +1,46 @@
 import streamlit as st
-import cv2
-import numpy as np
-from tensorflow import keras
+import torch
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
+from my_preprocessing import clean_text
 
-st.set_page_config(page_title="Face Mask Detection", layout="wide")
-st.title("😷 Face Mask Detection - Live Camera")
+MODEL_PATH = "bert-base-uncased"
 
-model = keras.models.load_model("face_mask_model.keras")
+@st.cache_resource
+def load_model():
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
+    model = AutoModelForSequenceClassification.from_pretrained(MODEL_PATH)
+    return tokenizer, model
 
-labels = ["No Mask", "Mask"]
+tokenizer, model = load_model()
 
-face_cascade = cv2.CascadeClassifier(
-    cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
-)
+st.set_page_config(page_title="Factify", layout="centered")
 
-if "camera" not in st.session_state:
-    st.session_state.camera = cv2.VideoCapture(0)
+st.title("📰 Factify – Fake News Detector")
+st.write("Detect whether a news article is **Real or Fake** using AI")
 
-FRAME_WINDOW = st.image([])
+text = st.text_area("Enter News Text", height=200)
 
-run = st.checkbox("Run Camera", value=True)
+if st.button("Predict"):
+    if text.strip() == "":
+        st.warning("Please enter text")
+    else:
+        cleaned = clean_text(text)
 
-while run:
-    ret, frame = st.session_state.camera.read()
-    if not ret:
-        st.error("Failed to access camera.")
-        break
+        inputs = tokenizer(
+            cleaned,
+            return_tensors="pt",
+            truncation=True,
+            padding=True
+        )
 
-    frame = cv2.flip(frame, 1)
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    faces = face_cascade.detectMultiScale(gray, 1.3, 5)
+        with torch.no_grad():
+            outputs = model(**inputs)
+            probs = torch.softmax(outputs.logits, dim=1)
+            pred = torch.argmax(probs).item()
 
-    for (x, y, w, h) in faces:
-        face = frame[y:y+h, x:x+w]
-        if face.size == 0:
-            continue
+        if pred == 0:
+            st.error("🚨 Fake News")
+        else:
+            st.success("✅ Real News")
 
-        face = cv2.resize(face, (224, 224))
-        face = face / 255.0
-        face = np.expand_dims(face, axis=0)
-
-        pred = model.predict(face, verbose=0)[0][0]
-        label = "Mask" if pred > 0.5 else "No Mask"
-
-        color = (0, 255, 0) if label == "Mask" else (0, 0, 255)
-        cv2.rectangle(frame, (x, y), (x+w, y+h), color, 2)
-        cv2.putText(frame, label, (x, y-10),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.9, color, 2)
-
-    FRAME_WINDOW.image(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+        st.write("Confidence:", probs.tolist())
